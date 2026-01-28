@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: sysdesk
+      POSTGRES_USER: sysdesk
+      POSTGRES_PASSWORD: sysdesk
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  web:
+    build:
+      context: ./app
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings
+      SECRET_KEY: dev-secret
+      DEBUG: "1"
+      ALLOWED_HOSTS: "*"
+      DATABASE_URL: postgres://sysdesk:sysdesk@db:5432/sysdesk
+      REDIS_URL: redis://redis:6379/0
+      EMAIL_HOST: mailhog
+      EMAIL_PORT: "1025"
+      EMAIL_USE_TLS: "0"
+    volumes:
+      - ./app:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - mailhog
+    command: python manage.py runserver 0.0.0.0:8000
+
+volumes:
+  pgdata:
