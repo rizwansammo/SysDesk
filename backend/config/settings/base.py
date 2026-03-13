@@ -147,6 +147,13 @@ CELERY_RESULT_BACKEND = env(
     default="redis://localhost:6379/1"
 )
 
+CELERY_BEAT_SCHEDULE = {
+    "poll-support-inbox-every-minute": {
+        "task": "integrations.tasks.poll_support_inbox",
+        "schedule": 60.0,
+    },
+}
+
 IMAP_HOST = env("IMAP_HOST", default="")
 IMAP_PORT = env.int("IMAP_PORT", default=993)
 IMAP_USERNAME = env("IMAP_USERNAME", default="")
