@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from automation.engine import AutomationEngine
 from .models import Ticket, TicketReply, TicketHistory
 
 
@@ -34,6 +35,12 @@ class TicketService:
             priority=priority,
             category=category,
             source=source,
+        )
+
+        AutomationEngine.run(
+            trigger_event="ticket_created",
+            ticket=ticket,
+            actor=actor,
         )
 
         TicketHistory.objects.create(
