@@ -136,3 +136,8 @@ CELERY_RESULT_BACKEND = env(
     "CELERY_RESULT_BACKEND",
     default="redis://localhost:6379/1"
 )
+
+IMAP_HOST = env("IMAP_HOST", default="")
+IMAP_PORT = env.int("IMAP_PORT", default=993)
+IMAP_USERNAME = env("IMAP_USERNAME", default="")
+IMAP_PASSWORD = env("IMAP_PASSWORD", default="")
