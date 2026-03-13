@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from accounts.models import User
+from sla.services import SLAService
 from .models import Ticket, TicketReply, TicketAttachment, TicketHistory
 
 
@@ -81,6 +82,7 @@ class TicketListSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.full_name", read_only=True)
     assigned_agent_name = serializers.CharField(source="assigned_agent.full_name", read_only=True)
     organization_name = serializers.CharField(source="organization.name", read_only=True)
+    sla = serializers.SerializerMethodField()
 
     class Meta:
         model = Ticket
@@ -103,7 +105,11 @@ class TicketListSerializer(serializers.ModelSerializer):
             "closed_at",
             "created_at",
             "updated_at",
+            "sla",
         ]
+
+    def get_sla(self, obj):
+        return SLAService.get_ticket_sla_summary(obj)
 
 
 class TicketDetailSerializer(serializers.ModelSerializer):
@@ -113,6 +119,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     attachments = TicketAttachmentSerializer(many=True, read_only=True)
     history = serializers.SerializerMethodField()
+    sla = serializers.SerializerMethodField()
 
     class Meta:
         model = Ticket
@@ -138,6 +145,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             "closed_at",
             "created_at",
             "updated_at",
+            "sla",
             "replies",
             "attachments",
             "history",
@@ -160,6 +168,9 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             queryset = queryset.exclude(event_type=TicketHistory.EVENT_INTERNAL_NOTE)
 
         return TicketHistorySerializer(queryset, many=True).data
+
+    def get_sla(self, obj):
+        return SLAService.get_ticket_sla_summary(obj)
 
 
 class CreateTicketSerializer(serializers.Serializer):
