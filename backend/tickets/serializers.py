@@ -110,9 +110,9 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.full_name", read_only=True)
     assigned_agent_name = serializers.CharField(source="assigned_agent.full_name", read_only=True)
     organization_name = serializers.CharField(source="organization.name", read_only=True)
-    replies = TicketReplySerializer(many=True, read_only=True)
+    replies = serializers.SerializerMethodField()
     attachments = TicketAttachmentSerializer(many=True, read_only=True)
-    history = TicketHistorySerializer(many=True, read_only=True)
+    history = serializers.SerializerMethodField()
 
     class Meta:
         model = Ticket
@@ -142,6 +142,24 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             "attachments",
             "history",
         ]
+
+    def get_replies(self, obj):
+        request = self.context.get("request")
+        queryset = obj.replies.all()
+
+        if request and request.user.role.code not in ["super_admin", "agent"]:
+            queryset = queryset.filter(is_internal=False)
+
+        return TicketReplySerializer(queryset, many=True).data
+
+    def get_history(self, obj):
+        request = self.context.get("request")
+        queryset = obj.history.all()
+
+        if request and request.user.role.code not in ["super_admin", "agent"]:
+            queryset = queryset.exclude(event_type=TicketHistory.EVENT_INTERNAL_NOTE)
+
+        return TicketHistorySerializer(queryset, many=True).data
 
 
 class CreateTicketSerializer(serializers.Serializer):

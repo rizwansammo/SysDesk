@@ -72,6 +72,15 @@ class TicketViewSet(viewsets.ModelViewSet):
             TicketDetailSerializer(ticket, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True, context={"request": request})
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context={"request": request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
     def reply(self, request, pk=None):
