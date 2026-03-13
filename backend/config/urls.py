@@ -27,6 +27,7 @@ urlpatterns = [
     path("api/v1/sla/", include("sla.urls")),
     path("api/v1/automation/", include("automation.urls")),
     path("api/v1/audit/", include("audit.urls")),
+    path("api/v1/reports/", include("reports.urls")),
 ]
 
 if settings.DEBUG:
