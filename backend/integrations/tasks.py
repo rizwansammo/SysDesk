@@ -1,14 +1,16 @@
+from celery import shared_task
+
 from integrations.email_gateway import EmailGateway, EmailGatewayError
-from integrations.imap_client import IMAPClient, IMAPClientError
+from integrations.imap_client import IMAPClient
 
 
+@shared_task
 def poll_support_inbox():
     client = IMAPClient()
 
     try:
         client.connect()
         messages = client.fetch_unread_messages()
-
         results = []
 
         for message in messages:
@@ -26,7 +28,6 @@ def poll_support_inbox():
                     "subject": message["subject"],
                     "result": result,
                 })
-
             except EmailGatewayError as exc:
                 results.append({
                     "status": "failed",
