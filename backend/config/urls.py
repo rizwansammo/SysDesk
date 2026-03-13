@@ -4,6 +4,10 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+admin.site.site_header = "SysDesk Helpdesk"
+admin.site.site_title = "SysDesk Helpdesk Admin"
+admin.site.index_title = "Welcome to SysDesk Helpdesk"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
