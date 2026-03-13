@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from audit.services import AuditService
 from automation.engine import AutomationEngine
+from integrations.notifications import TicketNotificationService
 from .models import Ticket, TicketReply, TicketHistory
 
 
@@ -68,6 +69,11 @@ class TicketService:
             },
         )
 
+        try:
+            TicketNotificationService.send_ticket_created(ticket)
+        except Exception:
+            pass
+
         return ticket
 
     @classmethod
@@ -107,6 +113,12 @@ class TicketService:
                 "is_internal": is_internal,
             },
         )
+
+        if not is_internal:
+            try:
+                TicketNotificationService.send_public_reply(ticket, reply)
+            except Exception:
+                pass
 
         return reply
 
@@ -182,6 +194,11 @@ class TicketService:
                 "new_status": new_status,
             },
         )
+
+        try:
+            TicketNotificationService.send_status_changed(ticket, old_status, new_status)
+        except Exception:
+            pass
 
         return ticket
 
