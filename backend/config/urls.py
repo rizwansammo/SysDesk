@@ -23,6 +23,7 @@ urlpatterns = [
 
     path("api/v1/tickets/", include("tickets.urls")),
     path("api/v1/organizations/", include("organizations.urls")),
+    path("api/v1/knowledge-base/", include("knowledge_base.urls")),
 ]
 
 if settings.DEBUG:
