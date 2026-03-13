@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from audit.services import AuditService
 from automation.engine import AutomationEngine
 from .models import Ticket, TicketReply, TicketHistory
 
@@ -50,6 +51,23 @@ class TicketService:
             message=f"Ticket created by {actor.email}",
         )
 
+        AuditService.log(
+            actor=actor,
+            organization=organization,
+            entity_type="ticket",
+            entity_id=ticket.id,
+            action="created",
+            metadata={
+                "ticket_number": ticket.ticket_number,
+                "subject": ticket.subject,
+                "status": ticket.status,
+                "priority": ticket.priority,
+                "category": ticket.category,
+                "source": ticket.source,
+                "assigned_agent_id": ticket.assigned_agent_id,
+            },
+        )
+
         return ticket
 
     @classmethod
@@ -77,6 +95,19 @@ class TicketService:
             ticket.first_response_at = timezone.now()
             ticket.save(update_fields=["first_response_at", "updated_at"])
 
+        AuditService.log(
+            actor=actor,
+            organization=ticket.organization,
+            entity_type="ticket_reply",
+            entity_id=reply.id,
+            action="created",
+            metadata={
+                "ticket_id": ticket.id,
+                "ticket_number": ticket.ticket_number,
+                "is_internal": is_internal,
+            },
+        )
+
         return reply
 
     @classmethod
@@ -95,6 +126,19 @@ class TicketService:
             old_value={"id": old_agent.id, "email": old_agent.email} if old_agent else None,
             new_value={"id": assigned_agent.id, "email": assigned_agent.email} if assigned_agent else None,
             message=f"Assigned to {assigned_agent.email if assigned_agent else 'Unassigned'}",
+        )
+
+        AuditService.log(
+            actor=actor,
+            organization=ticket.organization,
+            entity_type="ticket",
+            entity_id=ticket.id,
+            action="assigned",
+            metadata={
+                "ticket_number": ticket.ticket_number,
+                "old_agent_id": old_agent.id if old_agent else None,
+                "new_agent_id": assigned_agent.id if assigned_agent else None,
+            },
         )
 
         return ticket
@@ -126,6 +170,19 @@ class TicketService:
             message=f"Status changed from {old_status} to {new_status}",
         )
 
+        AuditService.log(
+            actor=actor,
+            organization=ticket.organization,
+            entity_type="ticket",
+            entity_id=ticket.id,
+            action="status_changed",
+            metadata={
+                "ticket_number": ticket.ticket_number,
+                "old_status": old_status,
+                "new_status": new_status,
+            },
+        )
+
         return ticket
 
     @classmethod
@@ -143,6 +200,19 @@ class TicketService:
             old_value={"priority": old_priority},
             new_value={"priority": new_priority},
             message=f"Priority changed from {old_priority} to {new_priority}",
+        )
+
+        AuditService.log(
+            actor=actor,
+            organization=ticket.organization,
+            entity_type="ticket",
+            entity_id=ticket.id,
+            action="priority_changed",
+            metadata={
+                "ticket_number": ticket.ticket_number,
+                "old_priority": old_priority,
+                "new_priority": new_priority,
+            },
         )
 
         return ticket
@@ -165,6 +235,19 @@ class TicketService:
             message="Ticket reopened",
         )
 
+        AuditService.log(
+            actor=actor,
+            organization=ticket.organization,
+            entity_type="ticket",
+            entity_id=ticket.id,
+            action="reopened",
+            metadata={
+                "ticket_number": ticket.ticket_number,
+                "old_status": old_status,
+                "new_status": Ticket.STATUS_OPEN,
+            },
+        )
+
         return ticket
 
     @classmethod
@@ -183,6 +266,19 @@ class TicketService:
             actor=actor,
             event_type=TicketHistory.EVENT_MERGED,
             message=f"Merged into {target_ticket.ticket_number}",
+        )
+
+        AuditService.log(
+            actor=actor,
+            organization=source_ticket.organization,
+            entity_type="ticket",
+            entity_id=source_ticket.id,
+            action="merged",
+            metadata={
+                "source_ticket_number": source_ticket.ticket_number,
+                "target_ticket_id": target_ticket.id,
+                "target_ticket_number": target_ticket.ticket_number,
+            },
         )
 
         return source_ticket

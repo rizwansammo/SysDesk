@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/v1/knowledge-base/", include("knowledge_base.urls")),
     path("api/v1/sla/", include("sla.urls")),
     path("api/v1/automation/", include("automation.urls")),
+    path("api/v1/audit/", include("audit.urls")),
 ]
 
 if settings.DEBUG:
