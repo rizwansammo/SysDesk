@@ -150,7 +150,7 @@ CELERY_RESULT_BACKEND = env(
 CELERY_BEAT_SCHEDULE = {
     "poll-support-inbox-every-minute": {
         "task": "integrations.tasks.poll_support_inbox",
-        "schedule": 60.0,
+        "schedule": 15.0,
     },
 }
 
