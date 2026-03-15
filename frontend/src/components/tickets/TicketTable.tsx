@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { Ticket } from "@/lib/types";
 
 type Props = {
@@ -5,6 +8,8 @@ type Props = {
 };
 
 export default function TicketTable({ tickets }: Props) {
+  const router = useRouter();
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <table className="min-w-full text-sm text-slate-900">
@@ -20,7 +25,11 @@ export default function TicketTable({ tickets }: Props) {
         </thead>
         <tbody className="bg-white text-slate-900">
           {tickets.map((ticket) => (
-            <tr key={ticket.id} className="border-t border-slate-200">
+            <tr
+              key={ticket.id}
+              className="cursor-pointer border-t border-slate-200 hover:bg-slate-50"
+              onClick={() => router.push(`/agent/tickets/${ticket.id}`)}
+            >
               <td className="px-4 py-3">{ticket.ticket_number}</td>
               <td className="px-4 py-3">{ticket.subject}</td>
               <td className="px-4 py-3">{ticket.organization_name}</td>

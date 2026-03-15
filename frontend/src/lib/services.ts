@@ -1,6 +1,12 @@
 import { api, setAuthToken } from "./api";
 import { clearTokens, getAccessToken, setTokens } from "./auth";
-import type { CurrentUser, DashboardReport, LoginResponse, Ticket } from "./types";
+import type {
+  CurrentUser,
+  DashboardReport,
+  LoginResponse,
+  Ticket,
+  TicketDetail,
+} from "./types";
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const response = await api.post<LoginResponse>("/auth/login/", {
@@ -35,6 +41,14 @@ export async function fetchTickets(): Promise<Ticket[]> {
   setAuthToken(token);
 
   const response = await api.get<Ticket[]>("/tickets/");
+  return response.data;
+}
+
+export async function fetchTicketDetail(ticketId: string | number): Promise<TicketDetail> {
+  const token = getAccessToken();
+  setAuthToken(token);
+
+  const response = await api.get<TicketDetail>(`/tickets/${ticketId}/`);
   return response.data;
 }
 

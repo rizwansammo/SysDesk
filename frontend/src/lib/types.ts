@@ -59,6 +59,42 @@ export interface Ticket {
   sla?: TicketSLA;
 }
 
+export interface TicketReply {
+  id: number;
+  ticket: number;
+  author: number;
+  author_name: string;
+  author_email: string;
+  body: string;
+  is_internal: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketHistory {
+  id: number;
+  ticket: number;
+  actor: number | null;
+  actor_name: string;
+  event_type: string;
+  field_name: string;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
+  message: string;
+  created_at: string;
+}
+
+export interface TicketDetail extends Ticket {
+  is_merged: boolean;
+  merged_into: number | null;
+  first_response_at: string | null;
+  resolved_at: string | null;
+  closed_at: string | null;
+  replies: TicketReply[];
+  attachments: unknown[];
+  history: TicketHistory[];
+}
+
 export interface DashboardReport {
   tickets_by_status: { status: string; count: number }[];
   tickets_by_organization: {
