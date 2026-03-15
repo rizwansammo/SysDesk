@@ -24,6 +24,24 @@ export interface CurrentUser {
   updated_at: string;
 }
 
+export interface AgentUser {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  phone: string;
+  job_title: string;
+  is_active: boolean;
+  organization: number | null;
+  organization_name?: string;
+  role: number;
+  role_code: string;
+  role_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface LoginResponse {
   refresh: string;
   access: string;

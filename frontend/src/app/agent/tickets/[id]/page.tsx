@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
@@ -9,6 +9,7 @@ import PriorityBadge from "@/components/ui/PriorityBadge";
 import TicketThread from "@/components/tickets/TicketThread";
 import TicketHistoryList from "@/components/tickets/TicketHistoryList";
 import TicketSLA from "@/components/tickets/TicketSLA";
+import TicketActionPanel from "@/components/tickets/TicketActionPanel";
 import { fetchTicketDetail } from "@/lib/services";
 import type { TicketDetail } from "@/lib/types";
 
@@ -19,20 +20,28 @@ export default function AgentTicketDetailPage() {
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  const loadTicket = useCallback(async () => {
     if (!id) return;
 
-    fetchTicketDetail(id)
-      .then(setTicket)
-      .catch(() => setError("Failed to load ticket detail"));
+    try {
+      const data = await fetchTicketDetail(id);
+      setTicket(data);
+      setError("");
+    } catch {
+      setError("Failed to load ticket detail");
+    }
   }, [id]);
+
+  useEffect(() => {
+    loadTicket();
+  }, [loadTicket]);
 
   return (
     <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
 
       <div className="flex-1">
-        <Topbar title="Ticket Detail" subtitle="View conversation, history, and SLA details." />
+        <Topbar title="Ticket Detail" subtitle="View conversation, history, SLA, and agent actions." />
 
         <main className="p-6">
           {error ? <p className="mb-4 text-red-600">{error}</p> : null}
@@ -49,7 +58,7 @@ export default function AgentTicketDetailPage() {
                     <PriorityBadge value={ticket.priority} />
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2 text-sm">
+                  <div className="grid gap-4 text-sm md:grid-cols-2">
                     <div>
                       <p className="text-slate-500">Ticket Number</p>
                       <p className="font-medium text-slate-900">{ticket.ticket_number}</p>
@@ -93,6 +102,8 @@ export default function AgentTicketDetailPage() {
               </div>
 
               <div className="space-y-6">
+                <TicketActionPanel ticket={ticket} onRefresh={loadTicket} />
+
                 <div className="rounded-xl border bg-white p-4 shadow-sm">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">Metadata</h3>
 
