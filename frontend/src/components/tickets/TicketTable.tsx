@@ -5,9 +5,10 @@ import type { Ticket } from "@/lib/types";
 
 type Props = {
   tickets: Ticket[];
+  basePath?: string;
 };
 
-export default function TicketTable({ tickets }: Props) {
+export default function TicketTable({ tickets, basePath = "/agent/tickets" }: Props) {
   const router = useRouter();
 
   return (
@@ -28,7 +29,7 @@ export default function TicketTable({ tickets }: Props) {
             <tr
               key={ticket.id}
               className="cursor-pointer border-t border-slate-200 hover:bg-slate-50"
-              onClick={() => router.push(`/agent/tickets/${ticket.id}`)}
+              onClick={() => router.push(`${basePath}/${ticket.id}`)}
             >
               <td className="px-4 py-3">{ticket.ticket_number}</td>
               <td className="px-4 py-3">{ticket.subject}</td>

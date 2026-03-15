@@ -47,7 +47,7 @@ export default function CustomerDashboardPage() {
 
           <div>
             <h3 className="mb-3 text-lg font-semibold text-slate-900">My Recent Tickets</h3>
-            <TicketTable tickets={tickets} />
+            <TicketTable tickets={tickets} basePath="/customer/tickets" />
           </div>
         </main>
       </div>

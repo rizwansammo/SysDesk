@@ -26,7 +26,7 @@ export default function CustomerTicketsPage() {
 
         <main className="p-6">
           {error ? <p className="mb-4 text-red-600">{error}</p> : null}
-          <TicketTable tickets={tickets} />
+          <TicketTable tickets={tickets} basePath="/customer/tickets" />
         </main>
       </div>
     </div>
