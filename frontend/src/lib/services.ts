@@ -44,6 +44,12 @@ export async function fetchTickets(): Promise<Ticket[]> {
   return response.data;
 }
 
+export async function fetchMyTickets(): Promise<Ticket[]> {
+  prepareAuth();
+  const response = await api.get<Ticket[]>("/tickets/");
+  return response.data;
+}
+
 export async function fetchTicketDetail(ticketId: string | number): Promise<TicketDetail> {
   prepareAuth();
   const response = await api.get<TicketDetail>(`/tickets/${ticketId}/`);
@@ -90,6 +96,17 @@ export async function addTicketReply(
     body,
     is_internal: isInternal,
   });
+  return response.data;
+}
+
+export async function createTicket(payload: {
+  subject: string;
+  description: string;
+  category?: string;
+  priority?: string;
+}) {
+  prepareAuth();
+  const response = await api.post("/tickets/", payload);
   return response.data;
 }
 

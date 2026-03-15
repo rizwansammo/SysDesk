@@ -10,14 +10,15 @@ import TicketThread from "@/components/tickets/TicketThread";
 import TicketHistoryList from "@/components/tickets/TicketHistoryList";
 import TicketSLA from "@/components/tickets/TicketSLA";
 import TicketActionPanel from "@/components/tickets/TicketActionPanel";
-import { fetchTicketDetail } from "@/lib/services";
-import type { TicketDetail } from "@/lib/types";
+import { fetchMe, fetchTicketDetail } from "@/lib/services";
+import type { CurrentUser, TicketDetail } from "@/lib/types";
 
 export default function AgentTicketDetailPage() {
   const params = useParams();
-  const id = params?.id as string;
+  const id = params?.id ? String(params.id) : "";
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [error, setError] = useState("");
 
   const loadTicket = useCallback(async () => {
@@ -33,15 +34,19 @@ export default function AgentTicketDetailPage() {
   }, [id]);
 
   useEffect(() => {
+    fetchMe().then(setCurrentUser).catch(() => {});
     loadTicket();
   }, [loadTicket]);
+
+  const isAgent =
+    currentUser?.role.code === "agent" || currentUser?.role.code === "super_admin";
 
   return (
     <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
 
       <div className="flex-1">
-        <Topbar title="Ticket Detail" subtitle="View conversation, history, SLA, and agent actions." />
+        <Topbar title="Ticket Detail" subtitle="View conversation, history, SLA, and actions." />
 
         <main className="p-6">
           {error ? <p className="mb-4 text-red-600">{error}</p> : null}
@@ -102,7 +107,7 @@ export default function AgentTicketDetailPage() {
               </div>
 
               <div className="space-y-6">
-                <TicketActionPanel ticket={ticket} onRefresh={loadTicket} />
+                {isAgent ? <TicketActionPanel ticket={ticket} onRefresh={loadTicket} /> : null}
 
                 <div className="rounded-xl border bg-white p-4 shadow-sm">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">Metadata</h3>
